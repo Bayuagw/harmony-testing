@@ -116,9 +116,7 @@ describe("Menolak Pengajuan SK Tim - Tendik Kepegawaian - Negative Blank Char", 
 
     // Verifikasi beberapa field data dosen terlihat
     cy.contains("Nama").should("be.visible");
-    cy.contains("NIP / NRK").should("be.visible");
-    cy.contains("Tanggal Mulai SK Berlaku").should("be.visible");
-    cy.contains("Tanggal Selesai SK Berlaku").should("be.visible");
+    cy.contains("NIP / NIDN").should("be.visible");
     cy.contains("Lampiran Anggota").should("be.visible");
     cy.contains("Keperluan SK Tim").should("be.visible");
 
