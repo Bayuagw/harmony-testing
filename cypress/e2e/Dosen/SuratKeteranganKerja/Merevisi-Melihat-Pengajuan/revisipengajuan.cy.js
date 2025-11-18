@@ -1,4 +1,4 @@
-const loginTendik = (email, password) => {
+const loginDosen = (email, password) => {
   cy.visit("http://localhost:8000/");
 
   // Klik tombol Login
@@ -70,20 +70,21 @@ const loginTendik = (email, password) => {
     }
   });
 
-  // Verifikasi berhasil masuk ke dashboard tendik
-  cy.url({ timeout: 10000 }).should("include", "/tendik/dashboard");
-  cy.log("✅ Berhasil login dan masuk ke Dashboard Tendik Kepegawaian");
+  // Verifikasi berhasil masuk ke dashboard dosen
+  cy.url({ timeout: 10000 }).should("include", "/dosen/dashboard");
+  cy.log("✅ Berhasil login dan masuk ke Dashboard Dosen");
 };
 
-describe("Menerima Pengajuan Surat Keterangan Kerja - Tendik Kepegawaian", () => {
+describe("Merevisi Pengajuan Surat Keterangan Kerja", () => {
   beforeEach(() => {
-    loginTendik("ade.setiawan@staff.itera.ac.id", "setiawan19");
+    // Login terlebih dahulu
+    loginDosen("andika.setiawan@if.itera.ac.id", "SS04ndika");
   });
 
-  it("Harus berhasil menerima pengajuan surat keterangan kerja", () => {
-    // Verifikasi berada di dashboard Tendik Kepegawaian
-    cy.url().should("include", "/tendik/dashboard");
-    cy.contains("Dashboard tendik kepegawaian").should("be.visible");
+  it("Harus berhasil merevisi pengajuan", () => {
+    // Verifikasi berada di dashboard
+    cy.url().should("include", "/dosen/dashboard");
+    cy.contains("Dashboard Dosen").should("be.visible");
 
     // Verifikasi tabel Status Pengajuan muncul
     cy.contains("Status Pengajuan").should("be.visible");
@@ -91,58 +92,44 @@ describe("Menerima Pengajuan Surat Keterangan Kerja - Tendik Kepegawaian", () =>
     // Tunggu tabel dimuat
     cy.wait(1000);
 
-    // Verifikasi ada data pengajuan dalam tabel
+    // Verifikasi ada pengajuan dengan status Revisi
+    cy.contains("Revisi").should("exist");
+
+    // Cari baris yang memiliki status "Revisi" dan klik icon Eye (button terakhir)
+    cy.contains("tr", "Revisi").find("button").last().click();
+
+    // Tunggu modal lacak pengajuan muncul
+    cy.wait(1000);
+
+    // Verifikasi modal lacak pengajuan muncul
     cy.contains("Form Pengajuan Surat Keterangan Kerja").should("be.visible");
 
-    // Klik tombol "Detail" dalam baris yang mengandung "Form Pengajuan Surat Keterangan Kerja"
-    // Cari parent row terlebih dahulu, lalu klik Detail di row tersebut
-    cy.contains("tr", "Form Pengajuan Surat Keterangan Kerja")
-      .find("button")
-      .contains("Detail")
-      .click();
+    // Verifikasi konten modal
+    cy.contains("button", "Edit").click();
 
     // Tunggu halaman detail dimuat
-    cy.wait(2000);
+    cy.wait(1000);
 
-    // Verifikasi halaman detail pengajuan muncul dengan URL
-    cy.url().should("include", "/pengajuan-keterangan-kerja/");
+    // Verifikasi halaman detail pengajuan muncul
+    cy.contains("Edit Form Pengajuan Surat Keterangan Kerja").should(
+      "be.visible"
+    );
+    cy.url().should("include", "/edit");
 
-    // Verifikasi section Data Dosen muncul
-    cy.contains("Detail Data Pengajuan Surat Keterangan Kerja").should("be.visible");
-    cy.contains("Data Dosen").should("be.visible");
-
-    // Verifikasi tombol Tolak dan Terima ada
-    cy.contains("button", "Tolak").should("be.visible");
-    cy.contains("button", "Terima").should("be.visible");
-
-    // Verifikasi beberapa field data dosen terlihat
-    cy.contains("Nama").should("be.visible");
-    cy.contains("NIP / NRK").should("be.visible");
-    cy.contains("Status Dosen").should("be.visible");
-    cy.contains("Tanggal Mulai Kerja").should("be.visible");
-    cy.contains("Tanggal Selesai Kerja").should("be.visible");
-    cy.contains("Keperluan Surat").should("be.visible");
-
-    // Klik tombol "Tolak" berwarna merah
-    cy.contains("button", "Terima").click();
+    // Klik tombol Submit
+    cy.contains("button", "Submit").click();
 
     // Tunggu modal konfirmasi muncul
-    cy.wait(500);
-
-    // Verifikasi modal konfirmasi muncul
     cy.contains("Konfirmasi!").should("be.visible");
     cy.contains("Pastikan data Anda sudah benar!").should("be.visible");
 
     // Klik tombol "Ya" di modal konfirmasi
     cy.contains("button", "Ya").click();
 
-    // Tunggu redirect ke dashboard
+    // Verifikasi berhasil submit
+    // Tunggu redirect atau notifikasi sukses
     cy.wait(2000);
 
-    // Verifikasi kembali ke halaman dashboard
-    cy.url().should("include", "/tendik/dashboard");
-    cy.contains("Dashboard tendik kepegawaian").should("be.visible");
-
-    cy.log("✅ Pengajuan berhasil diterima dan kembali ke dashboard!");
+    cy.log("✅ Revisi pengajuan berhasil dilakukan!");
   });
 });
