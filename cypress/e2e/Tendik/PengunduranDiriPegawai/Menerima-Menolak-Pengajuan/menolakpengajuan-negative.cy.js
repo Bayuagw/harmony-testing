@@ -75,12 +75,12 @@ const loginTendik = (email, password) => {
     cy.log("✅ Berhasil login dan masuk ke Dashboard Tendik Kepegawaian");
 };
 
-describe("Menerima Pengajuan Surat Keterangan Kerja - Tendik Kepegawaian", () => {
+describe("Menolak Pengajuan Pengunduran Diri Pegawai - Tendik Kepegawaian - Negative Blank Char", () => {
     beforeEach(() => {
         loginTendik("ade.setiawan@staff.itera.ac.id", "setiawan19");
     });
 
-    it("Harus berhasil menerima pengajuan surat keterangan kerja", () => {
+    it("Harus berhasil menolak pengajuan pengunduran diri pegawai", () => {
         // Verifikasi berada di dashboard Tendik Kepegawaian
         cy.url().should("include", "/tendik/dashboard");
         cy.contains("Dashboard tendik kepegawaian").should("be.visible");
@@ -92,11 +92,11 @@ describe("Menerima Pengajuan Surat Keterangan Kerja - Tendik Kepegawaian", () =>
         cy.wait(1000);
 
         // Verifikasi ada data pengajuan dalam tabel
-        cy.contains("Form Pengajuan Surat Keterangan Kerja").should("be.visible");
+        cy.contains("Form Pengajuan Pengunduran Diri Pegawai PNS").should("be.visible");
 
-        // Klik tombol "Detail" dalam baris yang mengandung "Form Pengajuan Surat Keterangan Kerja"
+        // Klik tombol "Detail" dalam baris yang mengandung "Form Pengajuan Pengunduran Diri Pegawai PNS"
         // Cari parent row terlebih dahulu, lalu klik Detail di row tersebut
-        cy.contains("tr", "Form Pengajuan Surat Keterangan Kerja")
+        cy.contains("tr", "Form Pengajuan Pengunduran Diri Pegawai PNS")
             .find("button")
             .contains("Detail")
             .click();
@@ -105,10 +105,9 @@ describe("Menerima Pengajuan Surat Keterangan Kerja - Tendik Kepegawaian", () =>
         cy.wait(2000);
 
         // Verifikasi halaman detail pengajuan muncul dengan URL
-        cy.url().should("include", "/pengajuan-keterangan-kerja/");
+        cy.url().should("include", "/pengunduran-diri/pegawai-pns/");
 
         // Verifikasi section Data Dosen muncul
-        cy.contains("Detail Data Pengajuan Surat Keterangan Kerja").should("be.visible");
         cy.contains("Data Dosen").should("be.visible");
 
         // Verifikasi tombol Tolak dan Terima ada
@@ -117,14 +116,39 @@ describe("Menerima Pengajuan Surat Keterangan Kerja - Tendik Kepegawaian", () =>
 
         // Verifikasi beberapa field data dosen terlihat
         cy.contains("Nama").should("be.visible");
-        cy.contains("NIP / NRK").should("be.visible");
-        cy.contains("Status Dosen").should("be.visible");
-        cy.contains("Tanggal Mulai Kerja").should("be.visible");
-        cy.contains("Tanggal Selesai Kerja").should("be.visible");
-        cy.contains("Keperluan Surat").should("be.visible");
+        cy.contains("NIP / NIDN / NRK").should("be.visible");
+        cy.contains("Program Studi").should("be.visible");
+
+        // Verifikasi section Berkas muncul
+        cy.contains("Berkas").should("be.visible");
+
+        // Verifikasi beberapa field data dosen terlihat
+        cy.contains("Lampiran").should("be.visible");
 
         // Klik tombol "Tolak" berwarna merah
-        cy.contains("button", "Terima").click();
+        cy.contains("button", "Tolak").click();
+
+        // Tunggu form alasan menolak muncul
+        cy.wait(500);
+
+        // Verifikasi field "Alasan Menolak" muncul
+        cy.contains("Alasan Menolak").should("be.visible");
+
+        // Isi alasan menolak
+        cy.get('textarea[placeholder*="alasan"]')
+            .clear()
+            .type(" ");
+
+        // Verifikasi alasan terisi
+        cy.get('textarea[placeholder*="alasan"]').should(
+            "have.value",
+            " ",
+        );
+
+        cy.log("❌ Alasan menolak kosong");
+
+        // Klik tombol "Kirim" berwarna hijau
+        cy.contains("button", "Kirim").click();
 
         // Tunggu modal konfirmasi muncul
         cy.wait(500);
@@ -139,10 +163,6 @@ describe("Menerima Pengajuan Surat Keterangan Kerja - Tendik Kepegawaian", () =>
         // Tunggu redirect ke dashboard
         cy.wait(2000);
 
-        // Verifikasi kembali ke halaman dashboard
-        cy.url().should("include", "/tendik/dashboard");
-        cy.contains("Dashboard tendik kepegawaian").should("be.visible");
-
-        cy.log("✅ Pengajuan berhasil diterima dan kembali ke dashboard!");
+        cy.log("❌ Pengajuan gagal ditolak, alasan menolak harus diisi");
     });
 });

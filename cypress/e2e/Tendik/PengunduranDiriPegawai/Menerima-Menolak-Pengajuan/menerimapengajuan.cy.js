@@ -75,12 +75,12 @@ const loginTendik = (email, password) => {
     cy.log("✅ Berhasil login dan masuk ke Dashboard Tendik Kepegawaian");
 };
 
-describe("Menerima Pengajuan Surat Keterangan Kerja - Tendik Kepegawaian", () => {
+describe("Menerima Pengajuan Pengunduran Diri Pegawai - Tendik Kepegawaian", () => {
     beforeEach(() => {
         loginTendik("ade.setiawan@staff.itera.ac.id", "setiawan19");
     });
 
-    it("Harus berhasil menerima pengajuan surat keterangan kerja", () => {
+    it("Harus berhasil menerima Pengajuan Pengunduran Diri Pegawai", () => {
         // Verifikasi berada di dashboard Tendik Kepegawaian
         cy.url().should("include", "/tendik/dashboard");
         cy.contains("Dashboard tendik kepegawaian").should("be.visible");
@@ -92,11 +92,11 @@ describe("Menerima Pengajuan Surat Keterangan Kerja - Tendik Kepegawaian", () =>
         cy.wait(1000);
 
         // Verifikasi ada data pengajuan dalam tabel
-        cy.contains("Form Pengajuan Surat Keterangan Kerja").should("be.visible");
+        cy.contains("Form Pengajuan Pengunduran Diri Pegawai PNS").should("be.visible");
 
-        // Klik tombol "Detail" dalam baris yang mengandung "Form Pengajuan Surat Keterangan Kerja"
+        // Klik tombol "Detail" dalam baris yang mengandung "Form Pengajuan Pengunduran Diri Pegawai"
         // Cari parent row terlebih dahulu, lalu klik Detail di row tersebut
-        cy.contains("tr", "Form Pengajuan Surat Keterangan Kerja")
+        cy.contains("tr", "Form Pengajuan Pengunduran Diri Pegawai PNS")
             .find("button")
             .contains("Detail")
             .click();
@@ -105,10 +105,10 @@ describe("Menerima Pengajuan Surat Keterangan Kerja - Tendik Kepegawaian", () =>
         cy.wait(2000);
 
         // Verifikasi halaman detail pengajuan muncul dengan URL
-        cy.url().should("include", "/pengajuan-keterangan-kerja/");
+        cy.url().should("include", "/pengunduran-diri/pegawai-pns/");
 
         // Verifikasi section Data Dosen muncul
-        cy.contains("Detail Data Pengajuan Surat Keterangan Kerja").should("be.visible");
+        cy.contains("Detail Data Pengajuan Pengunduran Diri Pegawai").should("be.visible");
         cy.contains("Data Dosen").should("be.visible");
 
         // Verifikasi tombol Tolak dan Terima ada
@@ -117,11 +117,14 @@ describe("Menerima Pengajuan Surat Keterangan Kerja - Tendik Kepegawaian", () =>
 
         // Verifikasi beberapa field data dosen terlihat
         cy.contains("Nama").should("be.visible");
-        cy.contains("NIP / NRK").should("be.visible");
-        cy.contains("Status Dosen").should("be.visible");
-        cy.contains("Tanggal Mulai Kerja").should("be.visible");
-        cy.contains("Tanggal Selesai Kerja").should("be.visible");
-        cy.contains("Keperluan Surat").should("be.visible");
+        cy.contains("NIP / NIDN / NRK").should("be.visible");
+        cy.contains("Program Studi").should("be.visible");
+
+        // Verifikasi section Berkas muncul
+        cy.contains("Berkas").should("be.visible");
+
+        // Verifikasi beberapa field data dosen terlihat
+        cy.contains("Lampiran").should("be.visible");
 
         // Klik tombol "Tolak" berwarna merah
         cy.contains("button", "Terima").click();
